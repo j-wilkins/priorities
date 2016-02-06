@@ -52,9 +52,13 @@ class TextReceiver
   module BodyResolver
     def self.resolve(body, user)
       if body =~ /[a-zA-Z](:[0-9]|)/
-        :checkin
-      elsif body =~ /[a-zA-Z]{1,}/
-        :checkin
+        count = user.projects.count - 1
+        vals = ("a".."z").to_a[0..count]
+        if body.chars.map {|c| vals.include?(c)}.all?
+          :checkin
+        else
+          :invalid
+        end
       elsif body =~ /[0-9]{1,2}(\.[0-9]|)/
         :checkin_adjustment
       else
