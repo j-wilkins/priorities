@@ -16,7 +16,7 @@ class StatsMessage
     percentage_sums = user.project_checkins.group(:project_id).sum(:percentage)
 
     strings = user.projects.map do |pr|
-      percentage = (percentage_sums[pr.id] / day_count.to_f)
+      percentage = ((percentage_sums[pr.id] || 0) / day_count.to_f)
 
       "%-#{max_name_length}s %.2f" % ["#{pr.name}:", percentage]
     end

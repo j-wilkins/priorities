@@ -43,7 +43,7 @@ class TextReceiver
 
   def successful_checkin_response(str)
     msg = if str == :updated
-      "New Checkin receibed, updated today's records."
+      "New Checkin received, updated today's records."
     else
       "Checkin Received. If today was not a full day,"\
         " respond with a modifier (0-9)"

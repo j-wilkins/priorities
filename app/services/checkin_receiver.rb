@@ -19,8 +19,8 @@ class CheckinReceiver
         checkin = user.project_checkins.where(project: project,
           date: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day)
 
-        if checkin
-          checkin.update_attribute(:percentage, RatingParser.rating_for(parms['Body'], letter))
+        if checkin.count == 1
+          checkin.first.update_attribute(:percentage, RatingParser.rating_for(parms['Body'], letter))
           updated = true
         else
           user.project_checkins.create(project: project, date: Time.zone.now,
