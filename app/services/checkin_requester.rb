@@ -40,6 +40,6 @@ class CheckinRequester
   end
 
   def checkin_message(choice_list)
-    "Time to checkin! Rank the following projects:\n\n#{choice_list.join}"
+    "Time to checkin! Rank the following projects:\n\n#{choice_list.join("\n")}"
   end
 end
