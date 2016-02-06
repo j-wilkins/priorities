@@ -20,6 +20,10 @@ class TextReceiver
 
   private
 
+  def command(parms, user)
+    CommandProcessor.call(parms, user)
+  end
+
   def checkin(parms, user)
     CheckinReceiver.call(parms, user)
     successful_checkin_response
@@ -51,7 +55,9 @@ class TextReceiver
 
   module BodyResolver
     def self.resolve(body, user)
-      if body =~ /[a-zA-Z](:[0-9]|)/
+      if body.first == "!" || body.first == "/"
+        :command
+      elsif body =~ /[a-zA-Z](:[0-9]|)/
         count = user.projects.count - 1
         vals = ("a".."z").to_a[0..count]
         if body.chars.map {|c| vals.include?(c)}.all?
