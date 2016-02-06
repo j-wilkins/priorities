@@ -25,8 +25,8 @@ class TextReceiver
   end
 
   def checkin(parms, user)
-    CheckinReceiver.call(parms, user)
-    successful_checkin_response
+    thing = CheckinReceiver.call(parms, user)
+    successful_checkin_response(thing)
   end
 
   def checkin_adjustment(parms, user)
@@ -41,9 +41,16 @@ class TextReceiver
     end
   end
 
-  def successful_checkin_response
+  def successful_checkin_response(str)
+    msg = if str == :updated
+      "New Checkin receibed, updated today's records."
+    else
+      "Checkin Received. If today was not a full day,"\
+        " respond with a modifier (0-9)"
+    end
+
     TwimlText.new do |t|
-      t.message "Checkin Received. If today was not a full day, respond with a modifier (0-9)"
+      t.message msg
     end
   end
 
