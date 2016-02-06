@@ -14,8 +14,10 @@ class CheckinReceiver
     project_hash = Hash[user.projects.enabled.map {|pr| [abcs.shift, pr]}]
     RatingParser.rated_projects(parms['Body']).each do |letter|
       project = project_hash.delete(letter)
-      user.project_checkins.create(project: project, date: Time.zone.now,
-        percentage: RatingParser.rating_for(parms['Body'], letter))
+      if project
+        user.project_checkins.create(project: project, date: Time.zone.now,
+          percentage: RatingParser.rating_for(parms['Body'], letter))
+      end
     end
   end
 
@@ -24,7 +26,7 @@ class CheckinReceiver
   module RatingParser
     module_function
     def rated_projects(string)
-      string.chars.uniq
+      string.chars.uniq.map {|n| n.downcase}
     end
 
     def rating_for(rating, fr)
