@@ -11,7 +11,12 @@ class CommandProcessor
   end
 
   def call
-    send(command_for_body)
+    cmd = command_for_body
+    if respond_to?(cmd)
+      send(command_for_body)
+    else
+      send_message("Sorry, I could do anything with '#{cmd}'.")
+    end
   end
 
   def command_for_body
