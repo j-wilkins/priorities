@@ -21,7 +21,7 @@ class CommandProcessor
 
   def stats
     TwimlText.new do |t|
-      t.message StatsMessage.build(user)
+      t.Message StatsMessage.build(user)
     end
   end
 end

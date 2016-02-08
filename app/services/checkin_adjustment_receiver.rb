@@ -14,6 +14,7 @@ class CheckinAdjustmentReceiver
     user.project_checkins.today.each do |chk|
       new_percentage = (chk.percentage * multiplier).to_i
       chk.update_attribute(:percentage, new_percentage)
+      chk.update_attribute(:day_weight, multiplier)
     end
   end
 

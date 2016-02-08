@@ -36,8 +36,8 @@ class TextReceiver
 
   def invalid(parms, user)
     TwimlText.new do |t|
-      t.message "Sorry, I couldn't parse your checkin. Please try again. (I'm sending your original response next so you can copy/pasta)"
-      t.message parms["Body"]
+      t.Message "Sorry, I couldn't parse your checkin. Please try again. (I'm sending your original response next so you can copy/pasta)"
+      t.Message parms["Body"]
     end
   end
 
@@ -50,13 +50,13 @@ class TextReceiver
     end
 
     TwimlText.new do |t|
-      t.message msg
+      t.Message msg
     end
   end
 
   def checkin_adjustment_response
     TwimlText.new do |t|
-      t.message "Adjustment received and applied. Enjoy your evening!"
+      t.Message "Adjustment received and applied. Enjoy your evening!"
     end
   end
 
