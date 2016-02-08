@@ -4,6 +4,8 @@ class CommandProcessor
     new(parms, user).call
   end
 
+  CMDS = %i|stats project disable|
+
   attr_reader :parms, :user
 
   def initialize(parms, user)
@@ -12,7 +14,7 @@ class CommandProcessor
 
   def call
     cmd = command_for_body
-    if respond_to?(cmd)
+    if CMDS.include?(cmd)
       send(command_for_body)
     else
       send_message("Sorry, I could do anything with '#{cmd}'.")
