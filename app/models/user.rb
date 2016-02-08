@@ -5,9 +5,10 @@ class User < ActiveRecord::Base
     end
   end
   has_many :project_checkins
+  has_many :checkin_days
 
-  def checkin_days
-    project_checkins.pluck(:date).map {|d| d.beginning_of_day}.uniq.count
-  end
+  #def checkin_days
+    #project_checkins.group("date(date)").map {|d| d.beginning_of_day}.uniq.count
+  #end
 end
 

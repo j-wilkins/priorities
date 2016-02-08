@@ -16,12 +16,39 @@ class CommandProcessor
 
   def command_for_body
     bd = parms['Body'].clone
-    bd[1..-1].intern
+    bd[1..-1].split(' ').first.intern
   end
 
   def stats
+    send_message(StatsMessage.build(user))
+  end
+
+  def project
+    pname = parms['Body'].split(' ', 2).last
+    user.projects.create(name: pname, enabled: true)
+
+    send_message("Created new project named '#{pname}'")
+  end
+
+  def disable
+    pname = parms['Body'].split(' ', 2).last
+    project = user.projects.find_by(name: pname)
+
+    if project
+      project.update_attribute(enabled: false)
+      msg = "Disabled project named '#{pname}'"
+    else
+      msg = "Could not find a project named '#{pname}', please say: '!disable <project name>'"
+    end
+
+    send_message(msg)
+  end
+
+  private
+
+  def send_message(msg)
     TwimlText.new do |t|
-      t.Message StatsMessage.build(user)
+      t.Message msg
     end
   end
 end

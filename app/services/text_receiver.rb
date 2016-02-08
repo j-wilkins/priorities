@@ -13,7 +13,7 @@ class TextReceiver
 
   def call
     user = User.find_by(phone_number: parms['From'])
-    return false unless user
+    return register_user unless user
 
     send(BodyResolver.resolve(parms['Body'], user), parms, user)
   end
@@ -57,6 +57,20 @@ class TextReceiver
   def checkin_adjustment_response
     TwimlText.new do |t|
       t.Message "Adjustment received and applied. Enjoy your evening!"
+    end
+  end
+
+  def register_user
+    if parms['Body'].split(' ').first == 'register'
+      name = parms['Body'].split(' ', 2).last
+      u = User.create(name: name, phone_number: parms['From'])
+      TwimlText.new do |t|
+        t.Message "Welcome #{u.name}!\n\nYou need some projects. To create one, respond '!project <project name>'\n\nAfter that, we'll be texting you at 7pm PST to ask what your priorities were for the day."
+      end
+    else
+      TwimlText.new do |t|
+        t.Message "Welcome new user! We're currently not registering new people yet. Please check back later."
+      end
     end
   end
 

@@ -12,18 +12,19 @@ class CheckinReceiver
   def call
     abcs = ("a".."z").to_a
     project_hash = Hash[user.projects.enabled.map {|pr| [abcs.shift, pr]}]
+    checkin_date = CheckinDay.today(user)
     updated = false
     RatingParser.rated_projects(parms['Body']).each do |letter|
       project = project_hash.delete(letter)
+
       if project
-        checkin = user.project_checkins.where(project: project,
-          date: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day)
+        checkin = user.project_checkins.today_for_project(checkin_date, project)
 
         if checkin.count == 1
           checkin.first.update_attribute(:percentage, RatingParser.rating_for(parms['Body'], letter))
           updated = true
         else
-          user.project_checkins.create(project: project, date: Time.zone.now,
+          user.project_checkins.create(project: project, checkin_day: checkin_date,
             percentage: RatingParser.rating_for(parms['Body'], letter))
         end
       end

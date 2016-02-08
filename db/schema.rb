@@ -16,6 +16,14 @@ ActiveRecord::Schema.define(version: 20160208193725) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "checkin_days", force: :cascade do |t|
+    t.integer  "user_id"
+    t.date     "date"
+    t.float    "day_weight", default: 1.0
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "project_checkins", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "project_id"
@@ -23,7 +31,7 @@ ActiveRecord::Schema.define(version: 20160208193725) do
     t.integer  "percentage"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.float    "day_weight", default: 1.0
+    t.integer  "checkin_day_id"
   end
 
   create_table "projects", force: :cascade do |t|

@@ -10,7 +10,10 @@ class StatsMessage
   end
 
   def build
-    day_count = user.checkin_days
+    if user.projects.count == 0
+      return "You don't have any projects! Create one with '!project \"project name\""
+    end
+    day_count = CheckinDay.day_count(user)
     max_name_length = user.projects.pluck(:name).map(&:length).max
 
     percentage_sums = user.project_checkins.group(:project_id).sum(:percentage)
