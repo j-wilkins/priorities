@@ -1,31 +1,27 @@
 class CheckinAdjustmentReceiver
   def self.call(parms, user)
-    new(parms, user).call
+    new(AdmustmentString.new(parms['Body']), user).call
   end
 
-  attr_reader :parms, :user
+  attr_reader :adjustment, :user, :checkin_date
 
-  def initialize(parms, user)
-    @parms, @user = parms, user
+  def initialize(parms, user, day = nil)
+    @adjustment, @user, @checkin_date = parms, user, day || CheckinDay.today(user)
   end
 
   def call
-    multiplier = percentage_multiplier(parms['Body'])
-    checkin_date = CheckinDay.today(user)
-    checkin_date.update_attribute(:day_weight, multiplier)
-    user.project_checkins.today(checkin_date).each do |chk|
-      new_percentage = (chk.percentage * multiplier).to_i
-      chk.update_attribute(:percentage, new_percentage)
-    end
+    adjust_day
+    adjust_all_projects_for_day
   end
 
-  private
+  def adjust_day
+    checkin_date.update_attribute(:day_weight, adjustment.multiplier)
+  end
 
-  def percentage_multiplier(str)
-    if str.include?('.')
-      str.to_f
-    else
-      (str.to_i * 10) / 100.0
+  def adjust_all_projects_for_day
+    user.project_checkins.on_day(checkin_date).each do |chk|
+      new_percentage = (chk.percentage * adjustment.multiplier).to_i
+      chk.update_attribute(:percentage, new_percentage)
     end
   end
 end

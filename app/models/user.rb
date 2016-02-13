@@ -10,5 +10,10 @@ class User < ActiveRecord::Base
   #def checkin_days
     #project_checkins.group("date(date)").map {|d| d.beginning_of_day}.uniq.count
   #end
+
+  def enabled_project_rateable_hash
+    abcs = ("a".."z").to_a
+    Hash[projects.enabled.map {|pr| [abcs.shift, pr]}]
+  end
 end
 

@@ -41,16 +41,9 @@ class TextReceiver
     end
   end
 
-  def successful_checkin_response(str)
-    msg = if str == :updated
-      "New Checkin received, updated today's records."
-    else
-      "Checkin Received. If today was not a full day,"\
-        " respond with a modifier (0-9)"
-    end
-
+  def successful_checkin_response(receipt)
     TwimlText.new do |t|
-      t.Message msg
+      t.Message receipt.message
     end
   end
 
@@ -70,26 +63,6 @@ class TextReceiver
     else
       TwimlText.new do |t|
         t.Message "Welcome new user! We're currently not registering new people yet. Please check back later."
-      end
-    end
-  end
-
-  module BodyResolver
-    def self.resolve(body, user)
-      if body.first == "!" || body.first == "/"
-        :command
-      elsif body =~ /[a-zA-Z](:[0-9]|)/
-        count = user.projects.count - 1
-        vals = ("a".."z").to_a[0..count]
-        if body.chars.map {|c| vals.include?(c)}.all?
-          :checkin
-        else
-          :invalid
-        end
-      elsif body =~ /[0-9]{1,2}(\.[0-9]|)/
-        :checkin_adjustment
-      else
-        :invalid
       end
     end
   end

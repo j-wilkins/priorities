@@ -3,6 +3,6 @@ class ProjectCheckin < ActiveRecord::Base
   belongs_to :project
   belongs_to :checkin_day
 
-  scope(:today, ->(date) { where(checkin_day: date) })
-  scope(:today_for_project, ->(date, project) { today(date).where(project: project) })
+  scope(:on_day, ->(date) { where(checkin_day: date) })
+  scope(:for_project_and_date, ->(project, date) { on_day(date).where(project: project) })
 end

@@ -1,59 +1,88 @@
 class CheckinReceiver
   def self.call(parms, user)
-    new(parms, user).call
+    new(user, RatingString.new(parms['Body']), CheckinDay.today(user)).call
   end
 
-  attr_reader :parms, :user
+  class Receipt
+    attr_reader :creation, :day, :adjusted
+    private :creation, :day, :adjusted
 
-  def initialize(parms, user)
-    @parms, @user = parms, user
+    def initialize(d, c = :created, a = false)
+      c = :created unless %i|created updated|.include?(c)
+      @creation, @day, @adjusted = c, d, a
+    end
+
+    def set_updated; @creation = :updated; end
+    def set_adjusted; @adjusted = true; end
+
+    def message(modifier = nil)
+      case
+        when created? && adjusted? && modifier == :yesterday
+          'Yesterdays checkin received and adjusted for a non-standard day. Go to bed already!!'
+        when created? && adjusted?
+          'Checkin received and adjusted for a non-standard day. Enjoy your evening!'
+        when updated? && adjusted? && modifier == :yesterday
+          "New Checkin received, updated yesterday's records."
+        when updated? && modifier == :yesterday
+          "Updated yesterday's records. To apply an adjustment, use '!yesterday <rating> <modifier>'."
+        when updated?
+          "New Checkin received, updated today's records."
+        when created? && modifier == :yesterday
+          'Checkin received for yesterday. To apply an adjustment, use "!yesterday <rating> <modifier>".'
+        when created?
+          "Checkin Received. If today was not a full day,"\
+            " respond with a modifier (1-9). Otherwise, enjoy your evening!"
+        else
+          "Something definitely happened, but I have no idea what."
+      end
+    end
+
+    private
+    def created?; creation == :created; end
+    def updated?; creation == :updated; end
+    def adjusted?; adjusted; end
+  end
+
+  attr_reader :user, :rating_string, :checkin_day, :receipt, :project_hash
+
+  def initialize(user, rs, cd)
+    @user, @rating_string, @checkin_day = user, rs, cd
+    @receipt = Receipt.new(checkin_day)
+    @project_hash = user.enabled_project_rateable_hash
   end
 
   def call
-    abcs = ("a".."z").to_a
-    project_hash = Hash[user.projects.enabled.map {|pr| [abcs.shift, pr]}]
-    checkin_date = CheckinDay.today(user)
-    updated = false
-    RatingParser.rated_projects(parms['Body']).each do |letter|
-      project = project_hash.delete(letter)
+    rating_string.rated_projects.each { |letter| process(letter) }
 
-      if project
-        checkin = user.project_checkins.today_for_project(checkin_date, project)
-
-        if checkin.count == 1
-          checkin.first.update_attribute(:percentage, RatingParser.rating_for(parms['Body'], letter))
-          updated = true
-        else
-          user.project_checkins.create(project: project, checkin_day: checkin_date,
-            percentage: RatingParser.rating_for(parms['Body'], letter))
-        end
-      end
-    end
-    updated ? :updated : :created
-  end
-
-  private
-
-  module RatingParser
-    module_function
-    def rated_projects(string)
-      string.chars.uniq.map {|n| n.downcase}
+    if rating_string.has_adjustment?
+      CheckinAdjustmentReceiver.new(rating_string, user, checkin_day).call
+      receipt.set_adjusted
     end
 
-    def rating_for(rating, fr)
-      h = Hash[rating.chars.group_by {|c| c}.map {|(k, vs)| [k, vs.length]}]
-      sum = h.values.sum.to_f
-      (((h[fr] / sum).to_f) * 100).to_i
-    end
+    receipt
   end
 
-  def rating_hash
-    Hash[body_lines.each { |r| r.split(":") }]
+  def process(letter)
+    project = project_hash.delete(letter)
+
+    checkins = existing_checkins_for(checkin_day, project)
+
+    checkins.count == 1 ? update(letter, checkins) : create(project, letter)
   end
 
-  def body_lines
-    rere = /(,|\n|;)/
-    parms['Body'].split(rere).reject {|s| s =~ rere}
+  def update(letter, checkins)
+    checkins.first.update_attribute(:percentage, rating_string.rating_for(letter))
+    receipt.set_updated
   end
+
+  def create(project, letter)
+    user.project_checkins.create(project: project, checkin_day: checkin_day,
+      percentage: rating_string.rating_for(letter))
+  end
+
+  def existing_checkins_for(date, project)
+    user.project_checkins.for_project_and_date(project, date)
+  end
+
 end
 

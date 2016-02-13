@@ -4,7 +4,7 @@ class CommandProcessor
     new(parms, user).call
   end
 
-  CMDS = %i|stats project disable|
+  CMDS = %i|stats project disable yesterday|
 
   attr_reader :parms, :user
 
@@ -17,17 +17,25 @@ class CommandProcessor
     if CMDS.include?(cmd)
       send(command_for_body)
     else
-      send_message("Sorry, I could do anything with '#{cmd}'.")
+      send_message("Sorry, I couldn't do anything with '#{cmd}'.")
     end
   end
 
   def command_for_body
     bd = parms['Body'].clone
-    bd[1..-1].split(' ').first.intern
+    bd[1..-1].split(' ').first.downcase.intern
   end
 
   def stats
     send_message(StatsMessage.build(user))
+  end
+
+  def yesterday
+    rs = RatingString.new(parms['Body'].split(' ', 2).last)
+
+    receipt =  CheckinReceiver.new(user, rs, CheckinDay.yesterday(user)).call
+
+    send_message(receipt.message(:yesterday))
   end
 
   def project

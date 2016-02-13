@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160208193725) do
+ActiveRecord::Schema.define(version: 20160208210241) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,7 +27,6 @@ ActiveRecord::Schema.define(version: 20160208193725) do
   create_table "project_checkins", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "project_id"
-    t.datetime "date"
     t.integer  "percentage"
     t.datetime "created_at"
     t.datetime "updated_at"

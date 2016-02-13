@@ -8,5 +8,11 @@ class CheckinDay < ActiveRecord::Base
     end
   end
 
+  def self.yesterday(user)
+    where(user: user, date: Date.today.prev_day).first || begin
+      create(user: user, date: Date.today.prev_day)
+    end
+  end
+
   scope(:day_count, ->(user) { where(user: user).pluck(:day_weight).sum})
 end
