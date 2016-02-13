@@ -10,18 +10,17 @@ class StatsMessage
   end
 
   def build
-    if user.projects.count == 0
+    if user.projects.enabled.count == 0
       return "You don't have any projects! Create one with '!project \"project name\""
     end
     day_count = CheckinDay.day_count(user)
-    max_name_length = user.projects.pluck(:name).map(&:length).max
 
     percentage_sums = user.project_checkins.group(:project_id).sum(:percentage)
 
     strings = user.projects.map do |pr|
       percentage = ((percentage_sums[pr.id] || 0) / day_count.to_f)
 
-      "%-#{max_name_length}s %.2f" % ["#{pr.name}:", percentage]
+      " %.2f :  %s" % [percentage, pr.name]
     end
 
     "Heres your project percentage stats:\n#{strings.join("\n")}"
