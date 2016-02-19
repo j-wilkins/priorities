@@ -1,5 +1,5 @@
 class StatsGraph
-  COLORS = %w|0392cf 7bc043 fdf498 f37736 ee4035 ffe28a 6fcb9f fb2e01 666547 f1cbff ffffff c9c9ff ffbdbd e1f7d5|
+  COLORS = %w|00aba9 ff0097 0392cf 7bc043 f37736 ee4035 ffe28a 6fcb9f fb2e01 666547 f1cbff ffffff c9c9ff ffbdbd e1f7d5|
   def self.build(stats)
     new(stats).call
   end
