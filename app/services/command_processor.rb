@@ -27,7 +27,17 @@ class CommandProcessor
   end
 
   def stats
-    send_message(StatsMessage.build(user))
+    #send_message(StatsMessage.build(user))
+    stats = StatsBuilder.call(user)
+
+    if stats.empty?
+      return send_message(
+        "You don't have any projects! Create one with '!project \"project name\"")
+    end
+
+    send_message(StatsMessage.build(stats)) do |t|
+      t.Media StatsGraph.build(stats)
+    end
   end
 
   def yesterday
@@ -61,9 +71,10 @@ class CommandProcessor
 
   private
 
-  def send_message(msg)
+  def send_message(msg, &block)
     TwimlText.new do |t|
       t.Message msg
+      block.call(t) unless block.nil?
     end
   end
 end

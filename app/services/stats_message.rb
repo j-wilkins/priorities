@@ -1,26 +1,18 @@
 class StatsMessage
-  def self.build(user)
-    new(user).build
+  def self.build(stats, builder = StatsBuilder)
+    stats = builder.call(stats) if stats.is_a?(User)
+    new(stats).build
   end
 
-  attr_reader :user
+  attr_reader :stats
 
-  def initialize(user)
-    @user = user
+  def initialize(stats)
+    @stats = stats
   end
 
   def build
-    if user.projects.enabled.count == 0
-      return "You don't have any projects! Create one with '!project \"project name\""
-    end
-    day_count = CheckinDay.day_count(user)
-
-    percentage_sums = user.project_checkins.group(:project_id).sum(:percentage)
-
-    strings = user.projects.map do |pr|
-      percentage = ((percentage_sums[pr.id] || 0) / day_count.to_f)
-
-      " %.2f :  %s" % [percentage, pr.name]
+    strings = stats.map do |name, percentage|
+      " %.2f :  %s" % [percentage, name]
     end
 
     "Heres your project percentage stats:\n#{strings.join("\n")}"

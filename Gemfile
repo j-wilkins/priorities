@@ -11,6 +11,8 @@ gem 'rails_12factor' # for heroku
 
 gem 'twilio-ruby'
 
+gem 'google-image-charts'
+
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
