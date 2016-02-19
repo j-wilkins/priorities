@@ -12,9 +12,11 @@ class StatsGraph
     labels = stats.map {|k,v| "%s - %.2f" % [k, v]}
     colors = COLORS.take(labels.count)
 
-    GoogleImageCharts::PieChart.new({
-      title: "Priority Stats", height: 500, width: 500,
+    chart = GoogleImageCharts::PieChart.new({
+      title: "Priority Stats", height: 500, width: 600,
       labels: labels, data: stats.values, colors: colors, additionalOptions: ''
-    }).chart_url
+    })
+    chart.instance_variable_set(:@chartType, 'p3')
+    chart.chart_url
   end
 end
