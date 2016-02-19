@@ -9,7 +9,7 @@ class StatsGraph
   def initialize(stats); @stats = stats; end
 
   def call
-    labels = stats.map {|k,v| "#{k} - #{v}"}
+    labels = stats.map {|k,v| "%s - %.2f" % [k, v]}
     colors = COLORS.take(labels.count)
 
     GoogleImageCharts::PieChart.new({
