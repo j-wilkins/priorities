@@ -73,8 +73,14 @@ class CommandProcessor
 
   def send_message(msg, &block)
     TwimlText.new do |t|
-      t.Message msg
-      block.call(t) unless block.nil?
+      if block.nil?
+        t.Message msg
+      else
+        t.Message do |m|
+          m.Body msg
+          block.call(m)
+        end
+      end
     end
   end
 end
