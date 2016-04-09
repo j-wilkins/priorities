@@ -1,6 +1,6 @@
 class CheckinAdjustmentReceiver
   def self.call(parms, user)
-    new(AdmustmentString.new(parms['Body']), user).call
+    new(AdjustmentString.new(parms['Body']), user).call
   end
 
   attr_reader :adjustment, :user, :checkin_date
